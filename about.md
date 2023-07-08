@@ -11,12 +11,11 @@ layout: page
 <h2>Interests</h2>
 
 <ul class="skill-list">
-	<li>Information Security</li>
+	<li>Application Security</li>
 	<li>Network Security</li>
-	<li>Network Protocols & Services</li>
-	<li>Network Security</li>
-	<li>IoT</li>
-	<li>Electronics</li>
+	<li>Threat Intelligence</li>
+	<li>Red Teaming</li>
+	<li>OSINT</li>
 </ul>
 <br>
 <br>
