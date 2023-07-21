@@ -1,4 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-07-08T23:28:47+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">td00k</title><subtitle>A blog about technology and stuff related</subtitle><entry><title type="html">Markdown Extra Components</title><link href="http://localhost:4000/markdown-extra-components/" rel="alternate" type="text/html" title="Markdown Extra Components" /><published>2016-02-24T22:48:00+00:00</published><updated>2016-02-24T22:48:00+00:00</updated><id>http://localhost:4000/markdown-extra-components</id><content type="html" xml:base="http://localhost:4000/markdown-extra-components/">&lt;h2 id=&quot;summary&quot;&gt;Summary:&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-07-21T22:21:28+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">td00k</title><subtitle>A blog about technology and stuff related</subtitle><entry><title type="html">Hack The Box | MonitorsTwo Write Up</title><link href="http://localhost:4000/MonitorsTwo/" rel="alternate" type="text/html" title="Hack The Box | MonitorsTwo Write Up" /><published>2023-07-20T22:48:00+01:00</published><updated>2023-07-20T22:48:00+01:00</updated><id>http://localhost:4000/MonitorsTwo</id><content type="html" xml:base="http://localhost:4000/MonitorsTwo/">&lt;h2 id=&quot;monitors-two---are-we-going-to-need-two-monitors-or-two-shells&quot;&gt;Monitors Two - are we going to need two monitors? Or two &lt;del&gt;shells&lt;/del&gt;?&lt;/h2&gt;
+
+&lt;h3 id=&quot;recon&quot;&gt;Recon&lt;/h3&gt;
+&lt;style&gt;body {text-align: justify}&lt;/style&gt;
+
+&lt;p&gt;Recon was done through nmap command - port 80 and 22 were found to be open.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/nmap.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So… Let’s see what is deal with the port 80.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/cacti.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Wild Cacti was found and the classical &lt;em&gt;admin:admin&lt;/em&gt; was tested without any success. 
+The next shot was assess the version - if it has a known exploit (which happens to be true). With a quick Google search, the following CVE showed up - &lt;em&gt;https://github.com/FredBrave/CVE-2022-46169-CACTI-1.2.22&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Next action was to test the exploit (which was an success!!)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/www-data.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A shell as www-data was granted, after some non-sucessful enumeration on the host - why not test a Linux Privilege Escalation script. LinPeas was the choosen one.
+By reviewing the output, a script was flagged - &lt;strong&gt;entry_point.sh&lt;/strong&gt;, which has a connection to a database.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/entrypoint.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After connecting to the DB:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/db.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Hashes? Hum, worth it to call John (for both of them), but only one was picked up by John:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/MonitorsTwo/hashed.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Ok, after this, why not trying login with our friend &lt;em&gt;Marcus&lt;/em&gt;? Voilá, it worked and now the user path is concluded.&lt;/p&gt;
+
+&lt;p&gt;With &lt;em&gt;Marcus&lt;/em&gt; shell and &lt;em&gt;www-data&lt;/em&gt; shell, we have two shells. Two monitors??&lt;/p&gt;
+
+&lt;p&gt;With the user shell, Linpeas.sh was again executed and docker was really in the spotlight. After some google an interesting Docker engine (Moby) vulnerability came to my attention: Moby Docker Engine PrivEsc (CVE-2021-41091).&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;CVE-2021-41091 is a flaw in Moby (Docker Engine) that allows unprivileged Linux users to traverse and execute programs within the data directory (usually located at /var/lib/docker) due to improperly restricted permissions. This vulnerability is present when containers contain executable programs with extended permissions, such as setuid. Unprivileged Linux users can then discover and execute those programs, as well as modify files if the UID of the user on the host matches the file owner or group inside the container.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s try this then. First on the initial shell:
+&lt;img src=&quot;/assets/images/MonitorsTwo/capabilities.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And then, on the second shell (Marcus):
+&lt;img src=&quot;/assets/images/MonitorsTwo/root.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Another crazyyyy rideeeeeeeeeeeee :)&lt;/p&gt;</content><author><name>td00k</name></author><category term="blog" /><category term="infosec" /><category term="hackthebox" /><summary type="html">Monitors Two - are we going to need two monitors? Or two shells?</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/MonitorsTwo/MonitorsTwo_1.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/MonitorsTwo/MonitorsTwo_1.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Markdown Extra Components</title><link href="http://localhost:4000/markdown-extra-components/" rel="alternate" type="text/html" title="Markdown Extra Components" /><published>2016-02-24T22:48:00+00:00</published><updated>2016-02-24T22:48:00+00:00</updated><id>http://localhost:4000/markdown-extra-components</id><content type="html" xml:base="http://localhost:4000/markdown-extra-components/">&lt;h2 id=&quot;summary&quot;&gt;Summary:&lt;/h2&gt;
 
 &lt;p&gt;You can pick as item to see how to apply in markdown.&lt;/p&gt;
 

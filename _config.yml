@@ -104,3 +104,8 @@ plugins:
 
 jekyll-mentions:
     base_url: https://github.com
+
+collections:
+  projects:
+    output: true
+    permalink: /projects/:path/
