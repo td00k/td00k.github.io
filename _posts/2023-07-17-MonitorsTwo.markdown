@@ -7,7 +7,6 @@ headerImage: true
 tag:
 - infosec
 - hackthebox
-star: true
 category: blog
 author: td00k
 description: HackTheBox TwoMonitors Write Up
