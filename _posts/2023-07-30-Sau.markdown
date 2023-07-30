@@ -2,7 +2,7 @@
 title: "Hack The Box | Sau Write Up"
 layout: post
 date: 2023-07-30 17:48
-image: /assets/images/MonitorsTwo/sau.jpg
+image: /assets/images/Sau/sau.jpg
 headerImage: true
 tag:
 - infosec
@@ -63,7 +63,7 @@ So, after some research on Google on this - https://exploit-notes.hdks.org/explo
 
 ![Markdowm Image](/assets/images/Sau/sudo2.jpg)
 
-A quick and fund ride :)
+A quick and fun ride :)))
 
 
 
