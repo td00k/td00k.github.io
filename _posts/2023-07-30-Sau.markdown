@@ -1,0 +1,73 @@
+---
+title: "Hack The Box | Sau Write Up"
+layout: post
+date: 2023-07-30 17:48
+image: /assets/images/MonitorsTwo/sau.jpg
+headerImage: true
+tag:
+- infosec
+- hackthebox
+category: blog
+author: td00k
+description: HackTheBox Sau Write Up
+# jemoji: '<img class="emoji" title=":ramen:" alt=":ramen:" src="https://assets.github.com/images/icons/emoji/unicode/1f35c.png" height="20" width="20" align="absmiddle">'
+---
+
+## Sau? Don't really find any possible association from the name but it is flagged as really easy by the community. ~~Is that really easy?~~
+
+### Recon
+<style>body {text-align: justify}</style>
+The recon started with the usual nmap where it was found 2 ports open and one filtered. 
+
+![Markdowm Image](/assets/images/Sau/nmap.jpg)
+
+And actually on tcp port 55555 a HTTP service was found - by checking the page:
+
+![Markdowm Image](/assets/images/Sau/basquets1.jpg)
+
+The first action done before even explore the page was search what request-baskets was - https://github.com/darklynx/request-baskets.
+After checking what it was, why not search for a possible security flaw and in fact that version was found to be vulnerable to a SSRF - from the info on this page: https://github.com/advisories/GHSA-58g2-vgpg-335q
+
+By going into the references, the following page https://notes.sjtu.edu.cn/s/MUUhEymt7 was in fact very helpful to understand what the vulnerability was about and also, how to explore it. 
+Since no interaction was done with the application so far, it was difficult to not trying at the same time that the _how to_ was being read. Altough the final outcome was not a prompt reverse shell, it was feeling worthy to follow the steps and so, the basket was created:
+
+![Markdowm Image](/assets/images/Sau/basket2.jpg)
+
+With _mycrazybasquet_ it was possible to start the PoC for the SSRF. As a paranteses, SSRF (Server-Side Request Forgery) happens when a threat actor tricks a server to acess/request unintended resources by somehow crafting a request. On this case, the framework used has a feature to forward the traffic which was explorer and SSRF was achieved. 
+
+![Markdowm Image](/assets/images/Sau/basket3.jpg)
+
+And, after the configuraiton is done, when accessing the basket created the following page pops-up:
+
+![Markdowm Image](/assets/images/Sau/mailtrail.jpg)
+
+And... Same approach, Google is always a good idea so after just pasting _Maltrail v0.53_, the attention went to an OS command injection vulnerability: https://github.com/spookier/Maltrail-v0.53-Exploit & https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/. After digging in on the how the vulnerability was found and explored, is PoC time.
+
+Settings changed:
+
+![Markdowm Image](/assets/images/Sau/basket4.jpg)
+
+Reverse shell attempt:
+
+![Markdowm Image](/assets/images/Sau/revshell.jpg)
+
+User is now achieved. And after a quick _ls_, a interesting file is found: h
+
+![Markdowm Image](/assets/images/Sau/h.jpg)
+
+On this file, it was possible to see an output of the _trail.service_ which can be executed as sudo.
+
+![Markdowm Image](/assets/images/Sau/sudo.jpg)
+
+So, after some research on Google on this - https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/sudo/sudo-systemctl-privilege-escalation/, which lead into this:
+
+![Markdowm Image](/assets/images/Sau/sudo2.jpg)
+
+A quick and fund ride :)
+
+
+
+
+
+
+
