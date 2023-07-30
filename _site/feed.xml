@@ -1,4 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-07-30T20:01:06+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">td00k</title><subtitle>A blog about technology and stuff related</subtitle><entry><title type="html">Hack The Box | MonitorsTwo Write Up</title><link href="http://localhost:4000/MonitorsTwo/" rel="alternate" type="text/html" title="Hack The Box | MonitorsTwo Write Up" /><published>2023-07-20T22:48:00+01:00</published><updated>2023-07-20T22:48:00+01:00</updated><id>http://localhost:4000/MonitorsTwo</id><content type="html" xml:base="http://localhost:4000/MonitorsTwo/">&lt;h2 id=&quot;monitors-two---are-we-going-to-need-two-monitors-or-two-shells&quot;&gt;Monitors Two - are we going to need two monitors? Or two &lt;del&gt;shells&lt;/del&gt;?&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-07-30T20:01:11+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">td00k</title><subtitle>A blog about technology and stuff related</subtitle><entry><title type="html">Hack The Box | Sau Write Up</title><link href="http://localhost:4000/Sau/" rel="alternate" type="text/html" title="Hack The Box | Sau Write Up" /><published>2023-07-30T17:48:00+01:00</published><updated>2023-07-30T17:48:00+01:00</updated><id>http://localhost:4000/Sau</id><content type="html" xml:base="http://localhost:4000/Sau/">&lt;h2 id=&quot;sau-dont-really-find-any-possible-association-from-the-name-but-it-is-flagged-as-really-easy-by-the-community-is-that-really-easy&quot;&gt;Sau? Don’t really find any possible association from the name but it is flagged as really easy by the community. &lt;del&gt;Is that really easy?&lt;/del&gt;&lt;/h2&gt;
+
+&lt;h3 id=&quot;recon&quot;&gt;Recon&lt;/h3&gt;
+&lt;style&gt;body {text-align: justify}&lt;/style&gt;
+
+&lt;p&gt;The recon started with the usual nmap where it was found 2 ports open and one filtered.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/nmap.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And actually on tcp port 55555 a HTTP service was found - by checking the page:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/basquets1.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The first action done before even explore the page was search what request-baskets was - https://github.com/darklynx/request-baskets.
+After checking what it was, why not search for a possible security flaw and in fact that version was found to be vulnerable to a SSRF - from the info on this page: https://github.com/advisories/GHSA-58g2-vgpg-335q&lt;/p&gt;
+
+&lt;p&gt;By going into the references, the following page https://notes.sjtu.edu.cn/s/MUUhEymt7 was in fact very helpful to understand what the vulnerability was about and also, how to explore it. 
+Since no interaction was done with the application so far, it was difficult to not trying at the same time that the &lt;em&gt;how to&lt;/em&gt; was being read. Altough the final outcome was not a prompt reverse shell, it was feeling worthy to follow the steps and so, the basket was created:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/basket2.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With &lt;em&gt;mycrazybasquet&lt;/em&gt; it was possible to start the PoC for the SSRF. As a paranteses, SSRF (Server-Side Request Forgery) happens when a threat actor tricks a server to acess/request unintended resources by somehow crafting a request. On this case, the framework used has a feature to forward the traffic which was explorer and SSRF was achieved.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/basket3.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And, after the configuraiton is done, when accessing the basket created the following page pops-up:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/mailtrail.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And… Same approach, Google is always a good idea so after just pasting &lt;em&gt;Maltrail v0.53&lt;/em&gt;, the attention went to an OS command injection vulnerability: https://github.com/spookier/Maltrail-v0.53-Exploit &amp;amp; https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/. After digging in on the how the vulnerability was found and explored, is PoC time.&lt;/p&gt;
+
+&lt;p&gt;Settings changed:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/basket4.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Reverse shell attempt:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/revshell.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;User is now achieved. And after a quick &lt;em&gt;ls&lt;/em&gt;, a interesting file is found: h&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/h.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;On this file, it was possible to see an output of the &lt;em&gt;trail.service&lt;/em&gt; which can be executed as sudo.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/sudo.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So, after some research on Google on this - https://exploit-notes.hdks.org/exploit/linux/privilege-escalation/sudo/sudo-systemctl-privilege-escalation/, which lead into this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Sau/sudo2.jpg&quot; alt=&quot;Markdowm Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A quick and fund ride :)&lt;/p&gt;</content><author><name>td00k</name></author><category term="blog" /><category term="infosec" /><category term="hackthebox" /><summary type="html">Sau? Don’t really find any possible association from the name but it is flagged as really easy by the community. Is that really easy?</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/MonitorsTwo/sau.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/MonitorsTwo/sau.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Hack The Box | MonitorsTwo Write Up</title><link href="http://localhost:4000/MonitorsTwo/" rel="alternate" type="text/html" title="Hack The Box | MonitorsTwo Write Up" /><published>2023-07-20T22:48:00+01:00</published><updated>2023-07-20T22:48:00+01:00</updated><id>http://localhost:4000/MonitorsTwo</id><content type="html" xml:base="http://localhost:4000/MonitorsTwo/">&lt;h2 id=&quot;monitors-two---are-we-going-to-need-two-monitors-or-two-shells&quot;&gt;Monitors Two - are we going to need two monitors? Or two &lt;del&gt;shells&lt;/del&gt;?&lt;/h2&gt;
 
 &lt;h3 id=&quot;recon&quot;&gt;Recon&lt;/h3&gt;
 &lt;style&gt;body {text-align: justify}&lt;/style&gt;
