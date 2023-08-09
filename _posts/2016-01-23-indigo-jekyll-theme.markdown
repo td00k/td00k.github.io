@@ -6,7 +6,7 @@ tag: netsec
 image: http://www.catb.org/hacker-emblem/glider.png
 headerImage: true
 projects: true
-hidden: true # don't count this post in blog pagination
+hidden: false # don't count this post in blog pagination
 description: "Description here"
 category: project
 author: tiagodias
